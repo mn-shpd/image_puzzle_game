@@ -13,7 +13,13 @@ public class Game {
         m_sceneHandler = new SceneHandler();
     }
 
+    //Loads main_menu scene and renders it.
     public void init() {
+        loadMainMenu();
+        m_sceneHandler.changeScene("main_menu");
+    }
+
+    private void loadMainMenu() {
 
         //Initializing main_menu scene.
         JFrame mainMenuWindow = new JFrame("Puzzle Game");
@@ -33,10 +39,7 @@ public class Game {
         buttons.add(exitButton);
 
         mainMenuWindow.setLayout(null);
-        //Renders scene on the screen.
-        mainMenuWindow.setVisible(true);
 
         m_sceneHandler.addScene(new Scene("main_menu", mainMenuWindow, buttons));
-
     }
 }
