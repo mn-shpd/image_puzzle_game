@@ -23,7 +23,7 @@ public class Scene {
         this.m_buttons = buttons;
 
         for(JButton button : m_buttons) {
-            button.addActionListener(new EventHandler(m_name, m_window));
+            button.addActionListener(new EventHandler(this));
             m_window.add(button);
         }
     }
@@ -44,5 +44,13 @@ public class Scene {
 
     public void setWindow(JFrame window) {
         this.m_window = window;
+    }
+
+    public List<JButton> getButtons() {
+        return m_buttons;
+    }
+
+    public void setButtons(List<JButton> m_buttons) {
+        this.m_buttons = m_buttons;
     }
 }
