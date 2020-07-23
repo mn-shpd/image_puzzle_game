@@ -8,16 +8,37 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
-public class Scene {
+public class Window {
 
-    //Scene name
-    private String m_name;
-    //Scene window
+    public static final int MAIN_MENU = 0;
+    public static final int STARTED_GAME = 1;
+
+    //Window name
+    private int m_name;
+    //Window
     private JFrame m_window;
+    //List of window's labels
+    private List<JLabel> m_labels;
     //List of window's buttons
     private List<JButton> m_buttons;
 
-    public Scene(String name, JFrame window, List<JButton> buttons) {
+    public Window(int name, JFrame window, List<JLabel> labels, List<JButton> buttons) {
+        this.m_name = name;
+        this.m_window = window;
+        this.m_buttons = buttons;
+        this.m_labels = labels;
+
+        for(JLabel label : labels) {
+            m_window.add(label);
+        }
+
+        for(JButton button : m_buttons) {
+            button.addActionListener(new EventHandler(this));
+            m_window.add(button);
+        }
+    }
+
+    public Window(int name, JFrame window, List<JButton> buttons) {
         this.m_name = name;
         this.m_window = window;
         this.m_buttons = buttons;
@@ -28,13 +49,11 @@ public class Scene {
         }
     }
 
-
-
-    public String getName() {
+    public int getName() {
         return m_name;
     }
 
-    public void setName(String name) {
+    public void setName(int name) {
         this.m_name = name;
     }
 
@@ -52,5 +71,13 @@ public class Scene {
 
     public void setButtons(List<JButton> m_buttons) {
         this.m_buttons = m_buttons;
+    }
+
+    public List<JLabel> getLabels() {
+        return m_labels;
+    }
+
+    public void setLabels(List<JLabel> labels) {
+        this.m_labels = labels;
     }
 }
