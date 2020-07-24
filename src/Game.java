@@ -10,7 +10,7 @@ import java.util.List;
 public class Game {
 
     private JFrame window;
-    private Resolution desktop_resolution;
+    private static Resolution desktop_resolution;
     private ArrayList<Composite> composites;
     ///////
     private static WindowHandler m_windowHandler;
@@ -20,9 +20,10 @@ public class Game {
     private static int m_number_of_moves;
     private static JLabel moves;
 
-//    public Game() {
-////        m_windowHandler = new WindowHandler();
-//    }
+    public Game() {
+        this.composites = new ArrayList<Composite>();
+//        m_windowHandler = new WindowHandler();
+    }
 
     //Loads main_menu scene and renders it.
     public void init() {
@@ -42,8 +43,6 @@ public class Game {
     private void initializeWindow() {
 
         this.window = new JFrame("Puzzle Game");
-        this.window.setSize(this.desktop_resolution.getWidth() / 4, this.desktop_resolution.getHeight() / 2);
-
         this.window.setLayout(new BorderLayout(5, 5));
         this.window.setVisible(true);
 
@@ -77,30 +76,49 @@ public class Game {
 
     private void initMainMenuComposite() {
 
-        MainMenu main_menu = new MainMenu(this.window);
+        //Compute window size for Main Menu composite.
+        Resolution window_size = new Resolution(this.desktop_resolution.getWidth() / 4, this.desktop_resolution.getHeight() / 2);
+        MainMenu main_menu = new MainMenu("MAIN_MENU", this.window, window_size);
         main_menu.setLayout(new BorderLayout(5, 5));
 
+        //Load labels, buttons etc.
         main_menu.loadSections();
-//        Section center_section = new Section("CENTER_SECTION");
-//        center_section.setLayout(new BorderLayout());
-//
-//        //Buttons
-//        JButton load_image_button = new JButton("Load Image");
-//        load_image_button.setName("load_image");
-////        load_image_button.setBounds(100, 200, 100, 25);
-//        load_image_button.setPreferredSize(new Dimension(100, 25));
-//        center_section.addButton(load_image_button, BorderLayout.CENTER);
-//
-////        center_section.setVisible(true);
-//        main_menu.add(center_section);
-////        main_menu.setVisible(true);
 
+        //Set visibility to false because it is only initialization.
+        main_menu.setVisible(false);
+
+        this.composites.add(main_menu);
         this.window.add(main_menu);
-//        Container window_container = this.window.getContentPane();
-//        window_container.add(main_menu);
-
-        this.window.setVisible(true);
     }
+
+    private void initStartedGame(String scale, int number_of_blocks) {
+
+        //TODO
+    }
+
+    public void start() {
+        this.showComposite("MAIN_MENU");
+    }
+
+    private void showComposite(String name) {
+        for(Composite composite : this.composites) {
+            if(composite.getName().equals(name)) {
+                composite.setVisible(true);
+                this.window.setSize(composite.getWindowSize().getWidth(), composite.getWindowSize().getHeight());
+            }
+            else {
+                composite.setVisible(false);
+            }
+        }
+    }
+
+//    public void hideComposite(String name) {
+//        for(Composite composite : this.composites) {
+//            if(composite.getName().equals(name)) {
+//                composite.setVisible(false);
+//            }
+//        }
+//    }
 
     public static void loadGame(String scale, int numberOfBlocks1) throws IOException {
 
