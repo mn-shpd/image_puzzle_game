@@ -9,6 +9,10 @@ import java.util.List;
 
 public class Game {
 
+    private JFrame window;
+    private Resolution desktop_resolution;
+    private ArrayList<Composite> composites;
+    ///////
     private static WindowHandler m_windowHandler;
     private static List<Integer> m_order_list;
     private static int m_number_of_blocks;
@@ -16,38 +20,86 @@ public class Game {
     private static int m_number_of_moves;
     private static JLabel moves;
 
-    public Game() {
-        m_windowHandler = new WindowHandler();
-    }
+//    public Game() {
+////        m_windowHandler = new WindowHandler();
+//    }
 
     //Loads main_menu scene and renders it.
     public void init() {
-        loadMainMenu();
-        m_windowHandler.changeScene(Window.MAIN_MENU);
+        this.computeResolution();
+        this.initializeWindow();
+//        loadMainMenu();
+//        m_windowHandler.changeScene(Window.MAIN_MENU);
     }
 
-    private void loadMainMenu() {
+    private void computeResolution() {
+        GraphicsDevice gd = GraphicsEnvironment.getLocalGraphicsEnvironment().getDefaultScreenDevice();
+        int width = gd.getDisplayMode().getWidth();
+        int height = gd.getDisplayMode().getHeight();
+        this.desktop_resolution = new Resolution(width, height);
+    }
 
-        //Initializing main_menu scene.
-        JFrame mainMenuWindow = new JFrame("Puzzle Game");
-        mainMenuWindow.setSize(300, 450);
+    private void initializeWindow() {
 
-        //Buttons initialization.
-        List<JButton> buttons = new ArrayList<>();
+        this.window = new JFrame("Puzzle Game");
+        this.window.setSize(this.desktop_resolution.getWidth() / 4, this.desktop_resolution.getHeight() / 2);
 
-        JButton loadImageButton = new JButton("Load Image");
-        loadImageButton.setName("load_image");
-        loadImageButton.setBounds(100, 200, 100, 25);
-        buttons.add(loadImageButton);
+        this.window.setLayout(new BorderLayout(5, 5));
+        this.window.setVisible(true);
 
-        JButton exitButton = new JButton("Exit");
-        exitButton.setName("exit");
-        exitButton.setBounds(100, 235, 100, 25);
-        buttons.add(exitButton);
+        this.initMainMenuComposite();
+//        //Initializing main_menu scene.
+//        JFrame mainMenuWindow = new JFrame("Puzzle Game");
+//        mainMenuWindow.setSize(300, 450);
+//
+//        //Buttons initialization.
+//        List<JButton> buttons = new ArrayList<>();
+//
+//        JButton loadImageButton = new JButton("Load Image");
+//        loadImageButton.setName("load_image");
+//        loadImageButton.setBounds(100, 200, 100, 25);
+//        buttons.add(loadImageButton);
+//
+//        JButton exitButton = new JButton("Exit");
+//        exitButton.setName("exit");
+//        exitButton.setBounds(100, 235, 100, 25);
+//        buttons.add(exitButton);
+//
+//        mainMenuWindow.setLayout(null);
+//
+//        m_windowHandler.addScene(new Window(Window.MAIN_MENU, mainMenuWindow, buttons));
+    }
 
-        mainMenuWindow.setLayout(null);
+    private void loadComposites() {
 
-        m_windowHandler.addScene(new Window(Window.MAIN_MENU, mainMenuWindow, buttons));
+
+    }
+
+    private void initMainMenuComposite() {
+
+        MainMenu main_menu = new MainMenu(this.window);
+        main_menu.setLayout(new BorderLayout(5, 5));
+
+        main_menu.loadSections();
+//        Section center_section = new Section("CENTER_SECTION");
+//        center_section.setLayout(new BorderLayout());
+//
+//        //Buttons
+//        JButton load_image_button = new JButton("Load Image");
+//        load_image_button.setName("load_image");
+////        load_image_button.setBounds(100, 200, 100, 25);
+//        load_image_button.setPreferredSize(new Dimension(100, 25));
+//        center_section.addButton(load_image_button, BorderLayout.CENTER);
+//
+////        center_section.setVisible(true);
+//        main_menu.add(center_section);
+////        main_menu.setVisible(true);
+
+        this.window.add(main_menu);
+//        Container window_container = this.window.getContentPane();
+//        window_container.add(main_menu);
+
+        this.window.setVisible(true);
     }
 
     public static void loadGame(String scale, int numberOfBlocks1) throws IOException {
@@ -58,8 +110,8 @@ public class Game {
         //Left bar width
         int barWidth = 150;
 
-        File file = new File("C:\\Users\\thewo\\Desktop\\neon-sunset-4k-eh-1366x768.jpg");
-        //File file = chooseFile();
+        //File file = new File("C:\\Users\\thewo\\Desktop\\neon-sunset-4k-eh-1366x768.jpg");
+        File file = chooseFile();
         BufferedImage img = adjustFile(file, "", m_number_of_blocks);
 
         JFrame game = new JFrame("Puzzle Game - Started");
