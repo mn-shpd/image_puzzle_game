@@ -9,6 +9,8 @@ import java.util.List;
 
 public class Game {
 
+    public static String version = "1.0";
+
     private JFrame window;
     private static Resolution desktop_resolution;
     private ArrayList<Composite> composites;
@@ -22,15 +24,14 @@ public class Game {
 
     public Game() {
         this.composites = new ArrayList<Composite>();
-//        m_windowHandler = new WindowHandler();
     }
 
-    //Loads main_menu scene and renders it.
+    //Computes resolution and creates game window.
     public void init() {
         this.computeResolution();
-        this.initializeWindow();
-//        loadMainMenu();
-//        m_windowHandler.changeScene(Window.MAIN_MENU);
+        this.createWindow();
+        this.initMainMenuComposite();
+        this.initOptionsComposite();
     }
 
     private void computeResolution() {
@@ -40,38 +41,11 @@ public class Game {
         this.desktop_resolution = new Resolution(width, height);
     }
 
-    private void initializeWindow() {
-
+    private void createWindow() {
         this.window = new JFrame("Puzzle Game");
-        this.window.setLayout(new BorderLayout(5, 5));
+        this.window.setLayout(new CardLayout());
         this.window.setVisible(true);
-
-        this.initMainMenuComposite();
-//        //Initializing main_menu scene.
-//        JFrame mainMenuWindow = new JFrame("Puzzle Game");
-//        mainMenuWindow.setSize(300, 450);
-//
-//        //Buttons initialization.
-//        List<JButton> buttons = new ArrayList<>();
-//
-//        JButton loadImageButton = new JButton("Load Image");
-//        loadImageButton.setName("load_image");
-//        loadImageButton.setBounds(100, 200, 100, 25);
-//        buttons.add(loadImageButton);
-//
-//        JButton exitButton = new JButton("Exit");
-//        exitButton.setName("exit");
-//        exitButton.setBounds(100, 235, 100, 25);
-//        buttons.add(exitButton);
-//
-//        mainMenuWindow.setLayout(null);
-//
-//        m_windowHandler.addScene(new Window(Window.MAIN_MENU, mainMenuWindow, buttons));
-    }
-
-    private void loadComposites() {
-
-
+        this.window.setResizable(false);
     }
 
     private void initMainMenuComposite() {
@@ -79,7 +53,6 @@ public class Game {
         //Compute window size for Main Menu composite.
         Resolution window_size = new Resolution(this.desktop_resolution.getWidth() / 4, this.desktop_resolution.getHeight() / 2);
         MainMenu main_menu = new MainMenu("MAIN_MENU", this.window, window_size);
-        main_menu.setLayout(new BorderLayout(5, 5));
 
         //Load labels, buttons etc.
         main_menu.loadSections();
@@ -91,9 +64,17 @@ public class Game {
         this.window.add(main_menu);
     }
 
-    private void initStartedGame(String scale, int number_of_blocks) {
+    private void initOptionsComposite() {
 
-        //TODO
+        Resolution window_size = new Resolution(342, 384);
+        Options options = new Options("OPTIONS", this.window, window_size);
+
+        options.loadSections();
+
+        options.setVisible(false);
+
+        this.composites.add(options);
+        this.window.add(options);
     }
 
     public void start() {
@@ -101,8 +82,12 @@ public class Game {
     }
 
     private void showComposite(String name) {
+//        CardLayout interfaces = (CardLayout) this.window.getLayout();
+//        interfaces.show(this.window, name);
+
         for(Composite composite : this.composites) {
             if(composite.getName().equals(name)) {
+                this.window.pack();
                 composite.setVisible(true);
                 this.window.setSize(composite.getWindowSize().getWidth(), composite.getWindowSize().getHeight());
             }

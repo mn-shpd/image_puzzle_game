@@ -4,28 +4,35 @@ import java.awt.event.ActionEvent;
 
 public class MainMenu extends Composite {
 
+    private JButton load_image_button;
+    private JButton exit_button;
+
     public MainMenu(String name, JFrame window, Resolution window_size) {
         super(name, window, window_size);
+        this.setLayout(new BorderLayout(5, 5));
+        this.load_image_button = null;
+        this.exit_button = null;
     }
 
     //Loads GUI sections
     public void loadSections() {
 
         //Title
-        Section title_section = new Section("TITLE_SECTION");
+        Section title_section = new Section("TITLE");
         int title_top_border = (int) (this.window_size.getWidth() * 0.15);
         int title_bottom_border = (int) (this.window_size.getHeight() * 0.05);
         title_section.setBorder(BorderFactory.createEmptyBorder(title_top_border, 0, title_bottom_border, 0));
 
         JLabel title = new JLabel("Puzzle Game");
-        Font title_font = new Font("Arial", Font.BOLD,30);
+        int title_font_size = (int) (this.window_size.getHeight() * 0.075);
+        Font title_font = new Font("Arial", Font.BOLD, title_font_size);
         title.setForeground(Color.BLACK);
         title.setFont(title_font);
 
         title_section.add(title);
 
         //Buttons
-        Section buttons_section = new Section("BUTTONS_SECTION");
+        Section buttons_section = new Section("BUTTONS");
         int v_gap = (int) (this.window_size.getHeight() * 0.02);
         GridLayout layout = new GridLayout(0, 1);
         layout.setVgap(v_gap);
@@ -35,23 +42,22 @@ public class MainMenu extends Composite {
         int buttons_bottom_border = (int) (this.window_size.getHeight() * 0.25);
         buttons_section.setBorder(BorderFactory.createEmptyBorder(0, buttons_h_border, buttons_bottom_border, buttons_h_border));
 
-        JButton load_image_button = new JButton("Load Image");
-        load_image_button.setName("load_image");
-        JButton exit_button = new JButton("Exit");
-        exit_button.setName("exit");
-        exit_button.addActionListener(this);
+        this.load_image_button = new JButton("Load Image");
+        this.exit_button = new JButton("Exit");
+        this.load_image_button.addActionListener(this);
+        this.exit_button.addActionListener(this);
 
-        buttons_section.addButton(load_image_button);
-        buttons_section.addButton(exit_button);
+        buttons_section.addButton(this.load_image_button);
+        buttons_section.addButton(this.exit_button);
 
         //Footer
-        Section footer_section = new Section("FOOTER_SECTION");
+        Section footer_section = new Section("FOOTER");
         footer_section.setLayout(new FlowLayout(FlowLayout.LEFT));
         footer_section.setBackground(Color.BLACK);
 
-        JLabel footer = new JLabel("Version: 1.0");
-        int footer_size = (int) (this.window_size.getHeight() * 0.04);
-        Font footer_font = new Font("Arial", Font.BOLD | Font.ITALIC, footer_size);
+        JLabel footer = new JLabel("Version: " + Game.version);
+        int footer_font_size = (int) (this.window_size.getHeight() * 0.04);
+        Font footer_font = new Font("Arial", Font.BOLD | Font.ITALIC, footer_font_size);
         footer.setForeground(Color.WHITE);
         footer.setFont(footer_font);
 
@@ -65,14 +71,13 @@ public class MainMenu extends Composite {
     @Override
     public void actionPerformed(ActionEvent e) {
 
-        String src_component_name = ((JButton)e.getSource()).getName();
+        Object source = e.getSource();
 
-        switch(src_component_name) {
-            case "load_game":
-
-            case "exit":
-                this.window.dispose();
-                break;
+        if(source == this.load_image_button) {
+            //TODO
+        }
+        else if(source == this.exit_button) {
+            this.window.dispose();
         }
     }
 }

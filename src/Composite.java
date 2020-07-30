@@ -5,13 +5,12 @@ import java.util.List;
 
 public abstract class Composite extends JPanel implements ActionListener {
 
-    private String name;
     protected JFrame window;
     protected Resolution window_size;
     private List<Section> sections;
 
     public Composite(String name, JFrame window, Resolution window_size) {
-        this.name = name;
+        super.setName(name);
         this.window = window;
         this.window_size = window_size;
         this.sections = new ArrayList<Section>();
@@ -37,9 +36,9 @@ public abstract class Composite extends JPanel implements ActionListener {
         }
     }
 
-    public String getName() {
-        return this.name;
-    }
+//    public String getName() {
+//        return super.getName();
+//    }
 
     public Resolution getWindowSize() {
         return window_size;
