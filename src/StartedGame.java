@@ -4,8 +4,8 @@ import java.awt.event.ActionEvent;
 
 public class StartedGame extends Composite {
 
-    public StartedGame(String name, JFrame window, Resolution window_size) {
-        super(name, window, window_size);
+    public StartedGame(String name, JFrame window, GuiHandler gui_handler, Resolution window_size) {
+        super(name, window, gui_handler, window_size);
         this.setLayout(new BorderLayout(5, 5));
     }
 

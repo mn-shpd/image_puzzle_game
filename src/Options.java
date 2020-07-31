@@ -8,21 +8,21 @@ import java.text.NumberFormat;
 public class Options extends Composite implements PropertyChangeListener {
 
     //NumberOfBlocks
-    private int number_of_blocks;
+    private Integer number_of_blocks;
     private JFormattedTextField number_of_blocks_field;
     private NumberFormat number_of_blocks_format;
     //Scale
     private String scale;
     private JComboBox scale_combo_box;
     //Message
-    private String message;
+    private JLabel message;
     //Return button
     private JButton return_button;
     //Start button
     private JButton start_button;
 
-    public Options(String name, JFrame window, Resolution window_size) {
-        super(name, window, window_size);
+    public Options(String name, JFrame window, GuiHandler gui_handler, Resolution window_size) {
+        super(name, window, gui_handler, window_size);
         this.number_of_blocks =  6;
         this.scale = "medium";
         this.message = null;
@@ -36,8 +36,12 @@ public class Options extends Composite implements PropertyChangeListener {
     public void loadSections() {
 
         this.loadTitleSection();
-        this.loadOptionsSection();
+        this.loadCenterSection();
         this.loadButtonsSection();
+    }
+
+    public void setDefaults() {
+        
     }
 
     private void loadTitleSection() {
@@ -55,16 +59,17 @@ public class Options extends Composite implements PropertyChangeListener {
         this.addSection(title_section, BorderLayout.NORTH);
     }
 
-    private void loadOptionsSection() {
+    private void loadCenterSection() {
 
         //Options section
-        Section options_section = new Section("OPTIONS");
-        options_section.setLayout(new BoxLayout(options_section, BoxLayout.PAGE_AXIS));
-        options_section.setBorder(BorderFactory.createEmptyBorder(10, 50, 10, 10));
+        Section center_section = new Section("OPTIONS");
+        center_section.setLayout(new BoxLayout(center_section, BoxLayout.PAGE_AXIS));
+        center_section.setBorder(BorderFactory.createEmptyBorder(10, 50, 10, 10));
 
         //Font for option labels
         Font options_font = new Font("Arial", Font.BOLD, 14);
 
+        //Needed for input handling
         this.setFormatsForFields();
 
         //Number of blocks option
@@ -90,16 +95,23 @@ public class Options extends Composite implements PropertyChangeListener {
         this.scale_combo_box.setAlignmentX(LEFT_ALIGNMENT);
         this.scale_combo_box.setMaximumSize(new Dimension(75, 25));
 
-        //Adding components to the panel
-        options_section.add(number_of_blocks_label);
-        options_section.add(Box.createRigidArea(new Dimension(0, 5)));
-        options_section.add(this.number_of_blocks_field);
-        options_section.add(Box.createRigidArea(new Dimension(0, 10)));
-        options_section.add(scale_label);
-        options_section.add(Box.createRigidArea(new Dimension(0, 5)));
-        options_section.add(this.scale_combo_box);
+        //Message
+        this.message = new JLabel();
+        this.message.setForeground(Color.red);
+        this.message.setAlignmentX(LEFT_ALIGNMENT);
 
-        this.addSection(options_section, BorderLayout.CENTER);
+        //Adding components to the panel
+        center_section.add(number_of_blocks_label);
+        center_section.add(Box.createRigidArea(new Dimension(0, 5)));
+        center_section.add(this.number_of_blocks_field);
+        center_section.add(Box.createRigidArea(new Dimension(0, 10)));
+        center_section.add(scale_label);
+        center_section.add(Box.createRigidArea(new Dimension(0, 5)));
+        center_section.add(this.scale_combo_box);
+        center_section.add(Box.createRigidArea(new Dimension(0, 30)));
+        center_section.add(this.message);
+
+        this.addSection(center_section, BorderLayout.CENTER);
     }
 
     private void loadButtonsSection() {
@@ -119,18 +131,15 @@ public class Options extends Composite implements PropertyChangeListener {
     }
 
     private void setFormatsForFields() {
-
         this.number_of_blocks_format = NumberFormat.getNumberInstance();
         this.number_of_blocks_format.setParseIntegerOnly(true);
-        number_of_blocks_format.setMinimumIntegerDigits(1);
-        number_of_blocks_format.setMaximumIntegerDigits(3);
     }
 
     @Override
     public void propertyChange(PropertyChangeEvent e) {
         Object source = e.getSource();
         if(source == this.number_of_blocks_field) {
-            System.out.println("ZMIENILO SIE");
+            //TODO
         }
     }
 
@@ -138,7 +147,7 @@ public class Options extends Composite implements PropertyChangeListener {
     public void actionPerformed(ActionEvent e) {
         Object source = e.getSource();
         if(source == this.return_button) {
-            System.out.println("WRACAM");
+            this.gui_handler.showComposite("MAIN_MENU");
         }
     }
 }

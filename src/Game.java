@@ -10,10 +10,10 @@ import java.util.List;
 public class Game {
 
     public static String version = "1.0";
+    public static File img;
 
-    private JFrame window;
-    private static Resolution desktop_resolution;
-    private ArrayList<Composite> composites;
+    private GuiHandler gui_handler;
+    private ArrayList<Composite> composites; // moze niepotrzebne
     ///////
     private static WindowHandler m_windowHandler;
     private static List<Integer> m_order_list;
@@ -23,87 +23,17 @@ public class Game {
     private static JLabel moves;
 
     public Game() {
+        this.gui_handler = new GuiHandler();
         this.composites = new ArrayList<Composite>();
     }
 
-    //Computes resolution and creates game window.
     public void init() {
-        this.computeResolution();
-        this.createWindow();
-        this.initMainMenuComposite();
-        this.initOptionsComposite();
-    }
-
-    private void computeResolution() {
-        GraphicsDevice gd = GraphicsEnvironment.getLocalGraphicsEnvironment().getDefaultScreenDevice();
-        int width = gd.getDisplayMode().getWidth();
-        int height = gd.getDisplayMode().getHeight();
-        this.desktop_resolution = new Resolution(width, height);
-    }
-
-    private void createWindow() {
-        this.window = new JFrame("Puzzle Game");
-        this.window.setLayout(new CardLayout());
-        this.window.setVisible(true);
-        this.window.setResizable(false);
-    }
-
-    private void initMainMenuComposite() {
-
-        //Compute window size for Main Menu composite.
-        Resolution window_size = new Resolution(this.desktop_resolution.getWidth() / 4, this.desktop_resolution.getHeight() / 2);
-        MainMenu main_menu = new MainMenu("MAIN_MENU", this.window, window_size);
-
-        //Load labels, buttons etc.
-        main_menu.loadSections();
-
-        //Set visibility to false because it is only initialization.
-        main_menu.setVisible(false);
-
-        this.composites.add(main_menu);
-        this.window.add(main_menu);
-    }
-
-    private void initOptionsComposite() {
-
-        Resolution window_size = new Resolution(342, 384);
-        Options options = new Options("OPTIONS", this.window, window_size);
-
-        options.loadSections();
-
-        options.setVisible(false);
-
-        this.composites.add(options);
-        this.window.add(options);
+        this.gui_handler.init();
     }
 
     public void start() {
-        this.showComposite("MAIN_MENU");
+        this.gui_handler.showComposite("OPTIONS");
     }
-
-    private void showComposite(String name) {
-//        CardLayout interfaces = (CardLayout) this.window.getLayout();
-//        interfaces.show(this.window, name);
-
-        for(Composite composite : this.composites) {
-            if(composite.getName().equals(name)) {
-                this.window.pack();
-                composite.setVisible(true);
-                this.window.setSize(composite.getWindowSize().getWidth(), composite.getWindowSize().getHeight());
-            }
-            else {
-                composite.setVisible(false);
-            }
-        }
-    }
-
-//    public void hideComposite(String name) {
-//        for(Composite composite : this.composites) {
-//            if(composite.getName().equals(name)) {
-//                composite.setVisible(false);
-//            }
-//        }
-//    }
 
     public static void loadGame(String scale, int numberOfBlocks1) throws IOException {
 
@@ -113,8 +43,8 @@ public class Game {
         //Left bar width
         int barWidth = 150;
 
-        //File file = new File("C:\\Users\\thewo\\Desktop\\neon-sunset-4k-eh-1366x768.jpg");
-        File file = chooseFile();
+        File file = new File("C:\\Users\\thewo\\Desktop\\neon-sunset-4k-eh-1366x768.jpg");
+//        File file = chooseFile();
         BufferedImage img = adjustFile(file, "", m_number_of_blocks);
 
         JFrame game = new JFrame("Puzzle Game - Started");
@@ -171,34 +101,6 @@ public class Game {
         m_last_button_id = -1;
         m_number_of_moves = 0;
         WindowHandler.changeScene(Window.STARTED_GAME);
-    }
-
-    public static File chooseFile() {
-
-        JFileChooser fileChooser = new JFileChooser();
-        fileChooser.setCurrentDirectory(new File(System.getProperty("user.home")));
-        int result = fileChooser.showOpenDialog(m_windowHandler.getCurrentScene().getWindow());
-
-        //When image has loaded successfully.
-        if(result == JFileChooser.APPROVE_OPTION) {
-
-            File file = fileChooser.getSelectedFile();
-
-            //Converting file to the img format which allows cropping.
-//            BufferedImage img = null;
-//
-//            try {
-//                img = ImageIO.read(file);
-//            } catch (IOException ex) {
-//                ex.printStackTrace();
-//            }
-            return file;
-        }
-        else {
-            //TODO (ERROR)
-        }
-
-        return null;
     }
 
     public static BufferedImage adjustFile(File file, String scale, int numberOfBlocks) throws IOException {

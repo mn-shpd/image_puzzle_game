@@ -6,12 +6,14 @@ import java.util.List;
 public abstract class Composite extends JPanel implements ActionListener {
 
     protected JFrame window;
+    protected GuiHandler gui_handler;
     protected Resolution window_size;
     private List<Section> sections;
 
-    public Composite(String name, JFrame window, Resolution window_size) {
+    public Composite(String name, JFrame window, GuiHandler gui_handler, Resolution window_size) {
         super.setName(name);
         this.window = window;
+        this.gui_handler = gui_handler;
         this.window_size = window_size;
         this.sections = new ArrayList<Section>();
     }
