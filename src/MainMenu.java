@@ -18,41 +18,37 @@ public class MainMenu extends Composite {
         this.setBorder(BorderFactory.createLineBorder(Color.BLACK, 5));
     }
 
-    //Loads GUI sections
+    //Loads GUI sections of this composite.
     public void loadSections() {
-
         this.loadTitleSection();
         this.loadCenterSection();
         this.loadFooterSection();
     }
 
+    //Initializes "Puzzle Game" label and adds it to the composite.
     private void loadTitleSection() {
-
-        //Title
-        Section title_section = new Section("TITLE");
-        int title_top_border = (int) (this.window_size.getWidth() * 0.15);
-        int title_bottom_border = (int) (this.window_size.getHeight() * 0.05);
+        JPanel title_section = new JPanel();
+        title_section.setName("TITLE");
         title_section.setBorder(BorderFactory.createEmptyBorder(51, 0, 19, 0));
 
         JLabel title = new JLabel("Puzzle Game");
-        int title_font_size = (int) (this.window_size.getHeight() * 0.075);
-        Font title_font = new Font("Arial", Font.BOLD, title_font_size);
+        Font title_font = new Font("Arial", Font.BOLD, 29);
         title.setForeground(Color.BLACK);
         title.setFont(title_font);
 
         title_section.add(title);
 
-        this.addSection(title_section, BorderLayout.NORTH);
+        this.add(title_section, BorderLayout.NORTH);
     }
 
+    //Loads buttons, labels and adds them to the composite.
     private void loadCenterSection() {
-
         //Buttons
-        Section center_section = new Section("BUTTONS");
+        JPanel center_section = new JPanel();
+        center_section.setName("BUTTONS");
         center_section.setLayout(new BoxLayout(center_section, BoxLayout.PAGE_AXIS));
         center_section.setBorder(BorderFactory.createEmptyBorder(10, 10, 10, 10));
 
-        //Buttons
         this.load_image_button = new JButton("Load Image");
         this.exit_button = new JButton("Exit");
         this.load_image_button.setAlignmentX(CENTER_ALIGNMENT);
@@ -73,13 +69,13 @@ public class MainMenu extends Composite {
         center_section.add(Box.createRigidArea(new Dimension(0, 30)));
         center_section.add(this.message);
 
-        this.addSection(center_section, BorderLayout.CENTER);
+        this.add(center_section, BorderLayout.CENTER);
     }
 
+    //Loads "Version: ..." label and adds it to the composite.
     private void loadFooterSection() {
-
         //Footer
-        Section footer_section = new Section("FOOTER");
+        JPanel footer_section = new JPanel();
         footer_section.setLayout(new BoxLayout(footer_section, BoxLayout.LINE_AXIS));
         footer_section.setBorder(BorderFactory.createEmptyBorder(5, 0, 0, 0));
         footer_section.setBackground(Color.BLACK);
@@ -92,18 +88,17 @@ public class MainMenu extends Composite {
 
         footer_section.add(footer);
 
-        this.addSection(footer_section, BorderLayout.SOUTH);
+        this.add(footer_section, BorderLayout.SOUTH);
     }
 
+    //Lets the user to choose img file. After approval proceeds to the options menu.
     private File chooseFile() {
-
         JFileChooser fileChooser = new JFileChooser();
         fileChooser.setCurrentDirectory(new File(System.getProperty("user.home")));
         int result = fileChooser.showOpenDialog(this.window);
 
         //When image has loaded successfully.
         if(result == JFileChooser.APPROVE_OPTION) {
-
             Game.img = fileChooser.getSelectedFile();
 
             //Converting file to the img format which allows cropping.
@@ -123,9 +118,9 @@ public class MainMenu extends Composite {
         return null;
     }
 
+    //Buttons event listener.
     @Override
     public void actionPerformed(ActionEvent e) {
-
         Object source = e.getSource();
 
         if(source == this.load_image_button) {
@@ -133,6 +128,7 @@ public class MainMenu extends Composite {
         }
         else if(source == this.exit_button) {
             this.window.dispose();
+            System.exit(0);
         }
     }
 }

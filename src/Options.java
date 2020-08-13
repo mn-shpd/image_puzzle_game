@@ -1,11 +1,17 @@
+import javax.imageio.ImageIO;
 import javax.swing.*;
 import java.awt.*;
 import java.awt.event.ActionEvent;
+import java.awt.image.BufferedImage;
 import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
+import java.io.File;
+import java.io.IOException;
 import java.text.NumberFormat;
 
 public class Options extends Composite implements PropertyChangeListener {
+
+    public static final int additional_gap = 50;
 
     //NumberOfBlocks
     private Integer number_of_blocks;
@@ -23,8 +29,8 @@ public class Options extends Composite implements PropertyChangeListener {
 
     public Options(String name, JFrame window, GuiHandler gui_handler, Resolution window_size) {
         super(name, window, gui_handler, window_size);
-        this.number_of_blocks =  6;
-        this.scale = "medium";
+        this.number_of_blocks =  3;
+        this.scale = "maximum";
         this.message = null;
         this.return_button = new JButton("Return");
         this.start_button = new JButton("Start");
@@ -33,20 +39,17 @@ public class Options extends Composite implements PropertyChangeListener {
         this.setBorder(BorderFactory.createLineBorder(Color.BLACK, 5));
     }
 
+    //Loads GUI sections of this composite.
     public void loadSections() {
-
         this.loadTitleSection();
         this.loadCenterSection();
         this.loadButtonsSection();
     }
 
-    public void setDefaults() {
-        
-    }
-
+    //Loads "Game Options" label and adds it to the composite.
     private void loadTitleSection() {
-
-        Section title_section = new Section("TITLE");
+        JPanel title_section = new JPanel();
+        title_section.setName("TITLE");
         title_section.setBorder(BorderFactory.createEmptyBorder(45, 0, 19, 0));
 
         JLabel title = new JLabel("Game Options");
@@ -56,13 +59,14 @@ public class Options extends Composite implements PropertyChangeListener {
 
         title_section.add(title);
 
-        this.addSection(title_section, BorderLayout.NORTH);
+        this.add(title_section, BorderLayout.NORTH);
     }
 
+    //Loads labels, fields, combo-box and adds them to the composite.
     private void loadCenterSection() {
-
         //Options section
-        Section center_section = new Section("OPTIONS");
+        JPanel center_section = new JPanel();
+        center_section.setName("OPTIONS");
         center_section.setLayout(new BoxLayout(center_section, BoxLayout.PAGE_AXIS));
         center_section.setBorder(BorderFactory.createEmptyBorder(10, 50, 10, 10));
 
@@ -81,26 +85,26 @@ public class Options extends Composite implements PropertyChangeListener {
         this.number_of_blocks_field = new JFormattedTextField(number_of_blocks_format);
         this.number_of_blocks_field.addPropertyChangeListener("value", this);
         this.number_of_blocks_field.setAlignmentX(LEFT_ALIGNMENT);
-        this.number_of_blocks_field.setMaximumSize(new Dimension(75, 25));
+        this.number_of_blocks_field.setMaximumSize(new Dimension(90, 25));
 
-        //Scale option
+        //Scale option label
         JLabel scale_label = new JLabel("Scale:");
         scale_label.setLabelFor(this.scale_combo_box);
         scale_label.setForeground(Color.BLACK);
         scale_label.setFont(options_font);
 
-        //combo box
-        String values[] = { "Small", "Medium", "Large" };
+        //Combo box
+        String values[] = { "Maximum", "Small", "Medium", "Large" };
         this.scale_combo_box = new JComboBox(values);
         this.scale_combo_box.setAlignmentX(LEFT_ALIGNMENT);
-        this.scale_combo_box.setMaximumSize(new Dimension(75, 25));
+        this.scale_combo_box.setMaximumSize(new Dimension(90, 25));
 
         //Message
         this.message = new JLabel();
         this.message.setForeground(Color.red);
         this.message.setAlignmentX(LEFT_ALIGNMENT);
 
-        //Adding components to the panel
+        //Adding components to the section.
         center_section.add(number_of_blocks_label);
         center_section.add(Box.createRigidArea(new Dimension(0, 5)));
         center_section.add(this.number_of_blocks_field);
@@ -111,12 +115,13 @@ public class Options extends Composite implements PropertyChangeListener {
         center_section.add(Box.createRigidArea(new Dimension(0, 30)));
         center_section.add(this.message);
 
-        this.addSection(center_section, BorderLayout.CENTER);
+        this.add(center_section, BorderLayout.CENTER);
     }
 
+    //Loads bottom buttons and adds them to the composite.
     private void loadButtonsSection() {
-
-        Section buttons_section = new Section("BUTTONS");
+        JPanel buttons_section = new JPanel();
+        buttons_section.setName("BUTTONS");
         buttons_section.setLayout(new BoxLayout(buttons_section, BoxLayout.LINE_AXIS));
         buttons_section.setBorder(BorderFactory.createEmptyBorder(0, 20, 10, 20));
 
@@ -135,6 +140,121 @@ public class Options extends Composite implements PropertyChangeListener {
         this.number_of_blocks_format.setParseIntegerOnly(true);
     }
 
+    //Initializes a new game with options provided by the user and starts it.
+    private void startGame() throws IOException {
+        BufferedImage adjusted_img = this.adjustFile(Game.img);
+        StartedGame started_game = new StartedGame("STARTED_GAME", this.window, this.gui_handler, adjusted_img, this.number_of_blocks);
+
+        started_game.loadSections();
+
+        gui_handler.addComposite(started_game, started_game.getName());
+        this.gui_handler.showComposite("STARTED_GAME");
+    }
+
+    //Adjusts the image loaded by the user.
+    //It is scaled to square form.
+    //If it is bigger than OS's windows area it is resized.
+    //It is scaled along the user's criteria.
+    //It is cropped if it gives remainder when dividing it's length by number of blocks choosen by the user.
+    private BufferedImage adjustFile(File file) throws IOException {
+        //Used to store file as an image and process it.
+        BufferedImage img = null;
+        //Reads input file and stores it as an image.
+        img = ImageIO.read(new File("C:\\Users\\thewo\\Desktop\\neon-sunset-4k-eh-1366x768.jpg"));
+
+        img = this.resizeToFitImgSection(img);
+        img = this.userCriteriaScale(img, scale);
+        img = this.cropImageIfGivesRemainder(img, number_of_blocks);
+
+        return img;
+    }
+
+    //Scales image to square and resizes it if it's bigger than tiles section's dimensions.
+    private BufferedImage resizeToFitImgSection(BufferedImage img) {
+
+        //Tiles section's resolution is set to the maximum of OS's windows area.
+        Resolution tiles_section_size = gui_handler.getMaximumWindowBounds();
+        tiles_section_size.setWidth(tiles_section_size.getWidth() - StartedGame.LEFT_BAR_WIDTH);
+
+        //Checks if the image's dimensions are beyond tiles sections' resolution.
+        int scale_width = (img.getWidth() > tiles_section_size.getWidth()) ? tiles_section_size.getWidth() : img.getWidth();
+        int scale_height = (img.getHeight() > tiles_section_size.getHeight()) ? tiles_section_size.getHeight() : img.getHeight();
+        int scale_length;
+
+        if(scale_width < scale_height) {
+            scale_length = scale_width;
+        }
+        else {
+            scale_length = scale_height;
+        }
+
+        //Dimensions of image are corrected by taskbar's height to fit into OS's windows area.
+        if(this.checkIfBiggerThanOsWindowsArea(scale_length, scale_length)) {
+            scale_length -= gui_handler.getOsTaskBarHeight() * 2;
+        }
+
+        //Used to resize image.
+        BufferedImage scaled_image = new BufferedImage(scale_length, scale_length, img.getType());
+        Graphics2D g2d = scaled_image.createGraphics();
+        g2d.drawImage(img, 0, 0, scale_length, scale_length, null);
+
+        return scaled_image;
+    }
+
+    //Checks if resolution passed as parameters is bigger than the screen resolution without taskbar.
+    private boolean checkIfBiggerThanOsWindowsArea(int width, int height) {
+        Resolution windows_area = this.gui_handler.getMaximumWindowBounds();
+
+        if(width >= windows_area.getWidth()) {
+            return true;
+        }
+        if(height >= windows_area.getHeight()) {
+            return true;
+        }
+
+        return false;
+    }
+
+    //Scales image along user criteria.
+    private BufferedImage userCriteriaScale(BufferedImage img, String scale) {
+        if(!scale.toLowerCase().equals("maximum")) {
+            int scaled_length = img.getHeight();
+
+            switch (scale.toLowerCase()) {
+                case "large":
+                    scaled_length = scaled_length * 85 / 100;
+                    break;
+                case "medium":
+                    scaled_length = img.getHeight() * 75 / 100;
+                    break;
+                case "small":
+                    scaled_length = img.getHeight() * 65 / 100;
+                    break;
+            }
+
+            BufferedImage scaled_image = new BufferedImage(scaled_length, scaled_length, img.getType());
+            Graphics2D g2d = scaled_image.createGraphics();
+            g2d.drawImage(img, 0, 0, scaled_length, scaled_length, null);
+            g2d.dispose();
+
+            img = scaled_image;
+        }
+
+        return img;
+    }
+
+    //Crops the square image if it gives remainder when dividing it's size by number of blocks.
+    private BufferedImage cropImageIfGivesRemainder(BufferedImage img, int number_of_blocks) {
+        if(img.getHeight() % number_of_blocks != 0) {
+            int size_of_block = img.getHeight() / number_of_blocks;
+            int cropping_size = size_of_block * number_of_blocks;
+            img = img.getSubimage(0, 0, cropping_size, cropping_size);
+        }
+
+        return img;
+    }
+
+    //Handles changes of options.
     @Override
     public void propertyChange(PropertyChangeEvent e) {
         Object source = e.getSource();
@@ -143,11 +263,19 @@ public class Options extends Composite implements PropertyChangeListener {
         }
     }
 
+    //Handles events generated by buttons.
     @Override
     public void actionPerformed(ActionEvent e) {
         Object source = e.getSource();
         if(source == this.return_button) {
             this.gui_handler.showComposite("MAIN_MENU");
+        }
+        else if(source == this.start_button) {
+            try {
+                this.startGame();
+            } catch (IOException ex) {
+                ex.printStackTrace();
+            }
         }
     }
 }

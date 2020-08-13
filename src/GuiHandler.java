@@ -34,9 +34,6 @@ public class GuiHandler {
     }
 
     private void initMainMenuComposite() {
-
-        //Compute window size for Main Menu composite.
-//        Resolution window_size = new Resolution(this.desktop_resolution.getWidth() / 4, this.desktop_resolution.getHeight() / 2);
         Resolution window_size = new Resolution(342, 384);
         MainMenu main_menu = new MainMenu("MAIN_MENU", this.window, this, window_size);
 
@@ -47,28 +44,66 @@ public class GuiHandler {
     }
 
     private void initOptionsComposite() {
-
         Resolution window_size = new Resolution(342, 384);
         Options options = new Options("OPTIONS", this.window, this, window_size);
 
+        //Load labels, buttons etc.
         options.loadSections();
 
         this.addComposite(options, options.getName());
     }
 
-    public void addComposite(Composite composite, String name) {
-        this.main_container.add(composite, name);
+    public boolean addComposite(Composite composite, String name) {
+        if(composite == null || name == null) {
+            return false;
+        }
+        else {
+            this.main_container.add(composite, name);
+            return true;
+        }
     }
 
-    public void showComposite(String name) {
-        CardLayout interfaces = (CardLayout) this.main_container.getLayout();
-        interfaces.show(this.main_container, name);
-
+    public boolean deleteComposite(String name) {
         for(Component component : this.main_container.getComponents()) {
-            if(component.getName().equals(name)) {
-                Composite composite = (Composite) component;
-                this.window.setSize(composite.getWindowSize().getWidth(), composite.getWindowSize().getHeight());
+            if (component.getName().equals(name)) {
+                this.main_container.remove(component);
+                return true;
             }
         }
+        return false;
+    }
+
+    public boolean showComposite(String name) {
+        if(name == null) {
+            return false;
+        }
+        else {
+            CardLayout interfaces = (CardLayout) this.main_container.getLayout();
+            interfaces.show(this.main_container, name);
+
+            for (Component component : this.main_container.getComponents()) {
+                if (component.getName().equals(name)) {
+                    if (component.getName().equals("STARTED_GAME")) {
+                        this.window.pack();
+                    } else {
+                        Composite composite = (Composite) component;
+                        this.window.setSize(composite.getWindowSize().getWidth(), composite.getWindowSize().getHeight());
+                    }
+                }
+            }
+
+            return true;
+        }
+    }
+
+    //Returns resolution of available surface for window rendering (without taskbar).
+    public Resolution getMaximumWindowBounds() {
+        Rectangle rect = GraphicsEnvironment.getLocalGraphicsEnvironment().getMaximumWindowBounds();
+        return new Resolution(rect.width, rect.height);
+    }
+
+    //Returns the height of OS's taskbar.
+    public int getOsTaskBarHeight() {
+        return this.desktop_resolution.getHeight() - this.getMaximumWindowBounds().getHeight();
     }
 }
