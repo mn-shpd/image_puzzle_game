@@ -1,5 +1,9 @@
 import javax.imageio.ImageIO;
 import javax.swing.*;
+import javax.swing.event.DocumentEvent;
+import javax.swing.event.DocumentListener;
+import javax.swing.text.BadLocationException;
+import javax.swing.text.Document;
 import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.image.BufferedImage;
@@ -15,7 +19,7 @@ public class Options extends Composite implements PropertyChangeListener {
 
     //NumberOfBlocks
     private Integer number_of_blocks;
-    private JFormattedTextField number_of_blocks_field;
+    private JTextField number_of_blocks_field;
     private NumberFormat number_of_blocks_format;
     //Scale
     private String scale;
@@ -29,7 +33,7 @@ public class Options extends Composite implements PropertyChangeListener {
 
     public Options(String name, JFrame window, GuiHandler gui_handler, Resolution window_size) {
         super(name, window, gui_handler, window_size);
-        this.number_of_blocks =  3;
+        this.number_of_blocks = null;
         this.scale = "maximum";
         this.message = null;
         this.return_button = new JButton("Return");
@@ -73,17 +77,30 @@ public class Options extends Composite implements PropertyChangeListener {
         //Font for option labels
         Font options_font = new Font("Arial", Font.BOLD, 14);
 
-        //Needed for input handling
-        this.setFormatsForFields();
-
         //Number of blocks option
         JLabel number_of_blocks_label = new JLabel("Amount of blocks:");
         number_of_blocks_label.setLabelFor(this.number_of_blocks_field);
         number_of_blocks_label.setForeground(Color.BLACK);
         number_of_blocks_label.setFont(options_font);
 
-        this.number_of_blocks_field = new JFormattedTextField(number_of_blocks_format);
-        this.number_of_blocks_field.addPropertyChangeListener("value", this);
+        this.number_of_blocks_field = new JTextField();
+        this.number_of_blocks_field.addPropertyChangeListener(this);
+        this.number_of_blocks_field.getDocument().addDocumentListener(new DocumentListener() {
+            @Override
+            public void insertUpdate(DocumentEvent doc_event) {
+                numberOfBlocksChange(doc_event);
+            }
+
+            @Override
+            public void removeUpdate(DocumentEvent doc_event) {
+                numberOfBlocksChange(doc_event);
+            }
+
+            @Override
+            public void changedUpdate(DocumentEvent doc_event) {
+                numberOfBlocksChange(doc_event);
+            }
+        });
         this.number_of_blocks_field.setAlignmentX(LEFT_ALIGNMENT);
         this.number_of_blocks_field.setMaximumSize(new Dimension(90, 25));
 
@@ -135,20 +152,23 @@ public class Options extends Composite implements PropertyChangeListener {
         this.add(buttons_section, BorderLayout.SOUTH);
     }
 
-    private void setFormatsForFields() {
-        this.number_of_blocks_format = NumberFormat.getNumberInstance();
-        this.number_of_blocks_format.setParseIntegerOnly(true);
-    }
-
     //Initializes a new game with options provided by the user and starts it.
-    private void startGame() throws IOException {
-        BufferedImage adjusted_img = this.adjustFile(Game.img);
-        StartedGame started_game = new StartedGame("STARTED_GAME", this.window, this.gui_handler, adjusted_img, this.number_of_blocks);
+    private void startGame() {
+        if(this.number_of_blocks == null) {
+            this.message.setText("No value for number of blocks...");
+        }
+        else if(this.scale.isEmpty()) {
+            this.message.setText("Scale was not set...");
+        }
+        else {
+            BufferedImage adjusted_img = this.adjustFile(Game.img);
+            StartedGame started_game = new StartedGame("STARTED_GAME", this.window, this.gui_handler, adjusted_img, this.number_of_blocks);
 
-        started_game.loadSections();
+            started_game.loadSections();
 
-        gui_handler.addComposite(started_game, started_game.getName());
-        this.gui_handler.showComposite("STARTED_GAME");
+            gui_handler.addComposite(started_game, started_game.getName());
+            this.gui_handler.showComposite("STARTED_GAME");
+        }
     }
 
     //Adjusts the image loaded by the user.
@@ -156,15 +176,19 @@ public class Options extends Composite implements PropertyChangeListener {
     //If it is bigger than OS's windows area it is resized.
     //It is scaled along the user's criteria.
     //It is cropped if it gives remainder when dividing it's length by number of blocks choosen by the user.
-    private BufferedImage adjustFile(File file) throws IOException {
+    private BufferedImage adjustFile(File file) {
         //Used to store file as an image and process it.
         BufferedImage img = null;
         //Reads input file and stores it as an image.
-        img = ImageIO.read(new File("C:\\Users\\thewo\\Desktop\\neon-sunset-4k-eh-1366x768.jpg"));
+        try {
+            img = ImageIO.read(new File("C:\\Users\\thewo\\Desktop\\neon-sunset-4k-eh-1366x768.jpg"));
+        } catch (IOException e) {
+            //TODO
+        }
 
         img = this.resizeToFitImgSection(img);
-        img = this.userCriteriaScale(img, scale);
-        img = this.cropImageIfGivesRemainder(img, number_of_blocks);
+        img = this.userCriteriaScale(img, this.scale);
+        img = this.cropImageIfGivesRemainder(img, this.number_of_blocks);
 
         return img;
     }
@@ -255,6 +279,26 @@ public class Options extends Composite implements PropertyChangeListener {
     }
 
     //Handles changes of options.
+
+    private void numberOfBlocksChange(DocumentEvent doc_event) {
+        this.message.setText("");
+        this.number_of_blocks = null;
+
+        Document document = doc_event.getDocument();
+        String text = null;
+        try {
+            text = document.getText(0, document.getLength());
+            if(!text.isEmpty()) {
+                this.number_of_blocks = Integer.parseInt(text);
+            }
+        } catch (BadLocationException e) {
+            e.printStackTrace();
+        } catch (NumberFormatException e) {
+            this.message.setText("Wrong value for number of blocks...");
+        }
+    }
+
+    //TO DELETE?
     @Override
     public void propertyChange(PropertyChangeEvent e) {
         Object source = e.getSource();
@@ -271,11 +315,7 @@ public class Options extends Composite implements PropertyChangeListener {
             this.gui_handler.showComposite("MAIN_MENU");
         }
         else if(source == this.start_button) {
-            try {
-                this.startGame();
-            } catch (IOException ex) {
-                ex.printStackTrace();
-            }
+            this.startGame();
         }
     }
 }

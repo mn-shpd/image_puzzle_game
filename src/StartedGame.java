@@ -37,7 +37,7 @@ public class StartedGame extends Composite {
     }
 
     //Loads GUI sections of this composite.
-    public void loadSections() throws IOException {
+    public void loadSections() {
         this.loadLeftBarSection();
         this.loadTilesSection();
     }
