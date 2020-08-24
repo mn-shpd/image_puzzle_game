@@ -7,20 +7,14 @@ import javax.swing.text.Document;
 import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.image.BufferedImage;
-import java.beans.PropertyChangeEvent;
-import java.beans.PropertyChangeListener;
 import java.io.File;
 import java.io.IOException;
-import java.text.NumberFormat;
 
-public class Options extends Composite implements PropertyChangeListener {
-
-    public static final int additional_gap = 50;
+public class Options extends Composite {
 
     //NumberOfBlocks
     private Integer number_of_blocks;
     private JTextField number_of_blocks_field;
-    private NumberFormat number_of_blocks_format;
     //Scale
     private String scale;
     private JComboBox scale_combo_box;
@@ -84,7 +78,6 @@ public class Options extends Composite implements PropertyChangeListener {
         number_of_blocks_label.setFont(options_font);
 
         this.number_of_blocks_field = new JTextField();
-        this.number_of_blocks_field.addPropertyChangeListener(this);
         this.number_of_blocks_field.getDocument().addDocumentListener(new DocumentListener() {
             @Override
             public void insertUpdate(DocumentEvent doc_event) {
@@ -278,8 +271,7 @@ public class Options extends Composite implements PropertyChangeListener {
         return img;
     }
 
-    //Handles changes of options.
-
+    //Validation of amount of blocks option.
     private void numberOfBlocksChange(DocumentEvent doc_event) {
         this.message.setText("");
         this.number_of_blocks = null;
@@ -289,21 +281,21 @@ public class Options extends Composite implements PropertyChangeListener {
         try {
             text = document.getText(0, document.getLength());
             if(!text.isEmpty()) {
-                this.number_of_blocks = Integer.parseInt(text);
+                Integer number_of_blocks = Integer.parseInt(text);
+                if(number_of_blocks < 2) {
+                    this.message.setText("Amount should be more than 2...");
+                }
+                else if(number_of_blocks > 100) {
+                    this.message.setText("Amount should be less than 100...");
+                }
+                else {
+                    this.number_of_blocks = number_of_blocks;
+                }
             }
         } catch (BadLocationException e) {
             e.printStackTrace();
         } catch (NumberFormatException e) {
             this.message.setText("Wrong value for number of blocks...");
-        }
-    }
-
-    //TO DELETE?
-    @Override
-    public void propertyChange(PropertyChangeEvent e) {
-        Object source = e.getSource();
-        if(source == this.number_of_blocks_field) {
-            //TODO
         }
     }
 
