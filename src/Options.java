@@ -184,7 +184,7 @@ public class Options extends Composite {
         BufferedImage img = null;
         //Reads input file and stores it as an image.
         try {
-            img = ImageIO.read(new File("C:\\Users\\thewo\\Desktop\\neon-sunset-4k-eh-1366x768.jpg"));
+            img = ImageIO.read(file);
         } catch (IOException e) {
             //TODO
         }

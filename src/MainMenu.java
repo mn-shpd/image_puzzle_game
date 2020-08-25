@@ -104,15 +104,6 @@ public class MainMenu extends Composite {
         //When image has loaded successfully.
         if(result == JFileChooser.APPROVE_OPTION) {
             Game.img = fileChooser.getSelectedFile();
-
-            //Converting file to the img format which allows cropping.
-//            BufferedImage img = null;
-//
-//            try {
-//                img = ImageIO.read(file);
-//            } catch (IOException ex) {
-//                ex.printStackTrace();
-//            }
             this.gui_handler.showComposite("OPTIONS");
         }
         else {
@@ -122,6 +113,7 @@ public class MainMenu extends Composite {
         return null;
     }
 
+    //Paints composite's background.
     @Override
     protected void paintComponent(Graphics g) {
         super.paintComponent(g);
