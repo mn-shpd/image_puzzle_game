@@ -2,7 +2,6 @@ import javax.swing.*;
 import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.image.BufferedImage;
-import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Random;
 
@@ -15,6 +14,7 @@ public class StartedGame extends Composite {
     private int number_of_moves;
     private JLabel number_of_moves_label;
     private JButton restart_button;
+    private JButton options_button;
     private JButton quit_button;
     private ArrayList<JButton> tile_buttons;
     private ArrayList<Integer> tiles_order;
@@ -27,9 +27,10 @@ public class StartedGame extends Composite {
         this.number_of_moves = 0;
         this.number_of_moves_label = null;
         this.restart_button = new JButton("Restart");
+        this.options_button = new JButton("Options");
         this.quit_button = new JButton("Quit");
-        this.tile_buttons = new ArrayList<JButton>();
-        this.tiles_order = new ArrayList<Integer>();
+        this.tile_buttons = null;
+        this.tiles_order = null;
         this.last_pressed_button = null;
 
         this.setLayout(new BorderLayout(0, 0));
@@ -64,6 +65,8 @@ public class StartedGame extends Composite {
 
         this.restart_button.setAlignmentX(CENTER_ALIGNMENT);
         this.restart_button.addActionListener(this);
+        this.options_button.setAlignmentX(CENTER_ALIGNMENT);
+        this.options_button.addActionListener(this);
         this.quit_button.setAlignmentX(CENTER_ALIGNMENT);
         this.quit_button.addActionListener(this);
 
@@ -71,10 +74,10 @@ public class StartedGame extends Composite {
         left_bar_section.add(moves_title);
         left_bar_section.add(Box.createRigidArea(new Dimension(LEFT_BAR_WIDTH, 10)));
         left_bar_section.add(this.number_of_moves_label);
-//        left_bar_section.add(Box.createRigidArea(new Dimension(LEFT_BAR_WIDTH, 30)));
-//        left_bar_section.add(this.message);
         left_bar_section.add(Box.createVerticalGlue());
         left_bar_section.add(this.restart_button);
+        left_bar_section.add(Box.createRigidArea(new Dimension(LEFT_BAR_WIDTH, 10)));
+        left_bar_section.add(this.options_button);
         left_bar_section.add(Box.createRigidArea(new Dimension(LEFT_BAR_WIDTH, 10)));
         left_bar_section.add(this.quit_button);
         left_bar_section.add(Box.createRigidArea(new Dimension(LEFT_BAR_WIDTH, 30)));
@@ -85,7 +88,7 @@ public class StartedGame extends Composite {
     //Loads tiles which are represented by JButtons and adds them to the composite.
     //It crops parts of the image properly to set icons of buttons. A button with icon forms tile.
     //Firstly, position of every button is saved in the order list (index = right position).
-    //Then the icons and positions are shuffled.
+    //Then icons and positions are shuffled.
     private void loadTilesSection() {
         //Tiles container for appropriate tiles centering.
         JPanel tiles_container_section = new JPanel();
@@ -101,6 +104,8 @@ public class StartedGame extends Composite {
 
         int current_block_pos_x, current_block_pos_y, id_iterator = 0;
         int block_size = this.img.getHeight() / this.number_of_blocks;
+        this.tiles_order = new ArrayList<>();
+        this.tile_buttons = new ArrayList<>();
 
         for(int i = 0; i < this.number_of_blocks; i++) {
             for (int j = 0; j < this.number_of_blocks; j++) {
@@ -136,16 +141,32 @@ public class StartedGame extends Composite {
         this.window.pack();
     }
 
-    private void showWinMessage() {
-        this.removeTileSection();
+    //Loads win screen and adds it to the composite.
+    private void loadWinSection() {
+        JPanel win_section = new JPanel();
+        win_section.setName("WIN");
+        win_section.setLayout(new BoxLayout(win_section, BoxLayout.PAGE_AXIS));
+        win_section.setBorder(BorderFactory.createLineBorder(Color.darkGray, 5));
+        win_section.setBackground(Color.darkGray);
 
-        //TODO
+        JLabel win_message = new JLabel("YOU WON!");
+        win_message.setForeground(new Color(0, 148, 54));
+        Font font = new Font("Arial", Font.BOLD,30);
+        win_message.setFont(font);
+        win_message.setAlignmentX(CENTER_ALIGNMENT);
+
+        win_section.add(Box.createVerticalGlue());
+        win_section.add(win_message);
+        win_section.add(Box.createVerticalGlue());
+
+        this.add(win_section, BorderLayout.CENTER);
     }
 
-    //Removes tiles from the GUI.
-    private void removeTileSection() {
+    //Removes tiles and shows win message.
+    private void showWinMessage() {
         this.removeSection("TILES_CONTAINER");
-        this.window.pack();
+        this.loadWinSection();
+        this.window.validate();
     }
 
     //Updates moves label with actual amount of moves.
@@ -157,7 +178,6 @@ public class StartedGame extends Composite {
     private boolean checkIfGameIsWon() {
         for (int i = 0; i < this.tiles_order.size(); i++) {
             if (i != this.tiles_order.get(i)) {
-                System.out.println("ZLE");
                 return false;
             }
         }
@@ -189,7 +209,8 @@ public class StartedGame extends Composite {
 
     //Restars the game with same configuration.
     private void restartGame() {
-        this.shuffleTiles();
+        this.removeSection("TILES_CONTAINER");
+        this.loadTilesSection();
         this.number_of_moves = 0;
         this.updateMovesLabel();
     }
@@ -201,6 +222,11 @@ public class StartedGame extends Composite {
         Object source = e.getSource();
         if(source == this.restart_button) {
             this.restartGame();
+            return;
+        }
+        if(source == this.options_button) {
+            this.gui_handler.showComposite("OPTIONS");
+            this.gui_handler.deleteComposite("STARTED_GAME");
             return;
         }
         if(source == this.quit_button) {
@@ -237,7 +263,9 @@ public class StartedGame extends Composite {
             }
 
             this.last_pressed_button = null;
-            this.checkIfGameIsWon();
+            if(this.checkIfGameIsWon()) {
+                this.showWinMessage();
+            }
         }
     }
 }
