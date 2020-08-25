@@ -1,7 +1,9 @@
+import javax.imageio.ImageIO;
 import javax.swing.*;
 import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.io.File;
+import java.io.IOException;
 
 public class MainMenu extends Composite {
 
@@ -25,11 +27,12 @@ public class MainMenu extends Composite {
         this.loadFooterSection();
     }
 
-    //Initializes "Puzzle Game" label and adds it to the composite.
+    //Loads "Puzzle Game" label and adds it to the composite.
     private void loadTitleSection() {
         JPanel title_section = new JPanel();
         title_section.setName("TITLE");
         title_section.setBorder(BorderFactory.createEmptyBorder(51, 0, 19, 0));
+        title_section.setOpaque(false);
 
         JLabel title = new JLabel("Puzzle Game");
         Font title_font = new Font("Arial", Font.BOLD, 29);
@@ -48,6 +51,7 @@ public class MainMenu extends Composite {
         center_section.setName("BUTTONS");
         center_section.setLayout(new BoxLayout(center_section, BoxLayout.PAGE_AXIS));
         center_section.setBorder(BorderFactory.createEmptyBorder(10, 10, 10, 10));
+        center_section.setOpaque(false);
 
         this.load_image_button = new JButton("Load Image");
         this.exit_button = new JButton("Exit");
@@ -78,7 +82,7 @@ public class MainMenu extends Composite {
         JPanel footer_section = new JPanel();
         footer_section.setLayout(new BoxLayout(footer_section, BoxLayout.LINE_AXIS));
         footer_section.setBorder(BorderFactory.createEmptyBorder(5, 0, 0, 0));
-        footer_section.setBackground(Color.BLACK);
+        footer_section.setBackground(new Color(0, 0, 0, 220));
 
         JLabel footer = new JLabel("Version: " + Game.version);
         Font footer_font = new Font("Arial", Font.BOLD | Font.ITALIC, 15);
@@ -116,6 +120,18 @@ public class MainMenu extends Composite {
         }
 
         return null;
+    }
+
+    @Override
+    protected void paintComponent(Graphics g) {
+        super.paintComponent(g);
+        Image background_img = null;
+        try {
+            background_img = ImageIO.read(new File("background.png"));
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+        g.drawImage(background_img, 0, 120, null);
     }
 
     //Buttons event listener.

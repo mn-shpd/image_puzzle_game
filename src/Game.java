@@ -16,6 +16,6 @@ public class Game {
     }
 
     public void start() {
-        this.gui_handler.showComposite("OPTIONS");
+        this.gui_handler.showComposite("MAIN_MENU");
     }
 }

@@ -27,10 +27,6 @@ public abstract class Composite extends JPanel implements ActionListener {
         }
     }
 
-    public void setWindowSize(int width, int height) {
-        this.window_size = new Resolution(width, height);
-    }
-
     public Resolution getWindowSize() {
         return window_size;
     }
