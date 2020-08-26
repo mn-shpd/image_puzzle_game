@@ -3,6 +3,8 @@
 Java 11 + Swing
 #### Description:
 The game generates movable tiles from an image. It allows player to customize game parameters which consist of amount of tiles and image scale. It is written in Java and uses Swing for GUI.
+#### How to run:
+To run project create an empty project in any IDE, put src and graphics files from this repository in newly created project directory and compile it.
 #### Screenshots:
 
 1. Main Menu
