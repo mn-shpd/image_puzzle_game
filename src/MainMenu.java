@@ -64,7 +64,7 @@ public class MainMenu extends Composite {
 
         //Message
         this.message = new JLabel();
-        this.message.setForeground(Color.red);
+        this.message.setForeground(Color.black);
         this.message.setAlignmentX(CENTER_ALIGNMENT);
 
         center_section.add(this.load_image_button);
@@ -119,7 +119,7 @@ public class MainMenu extends Composite {
         super.paintComponent(g);
         Image background_img = null;
         try {
-            background_img = ImageIO.read(new File("background.png"));
+            background_img = ImageIO.read(new File("graphics/background.png"));
         } catch (IOException e) {
             e.printStackTrace();
         }
